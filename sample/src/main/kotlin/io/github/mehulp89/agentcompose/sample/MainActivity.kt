@@ -1,0 +1,171 @@
+package io.github.mehulp89.agentcompose.sample
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalUriHandler
+import io.github.mehulp89.agentcompose.core.AgentEngine
+import io.github.mehulp89.agentcompose.core.AgentEvent
+import io.github.mehulp89.agentcompose.core.AgentMessage
+import io.github.mehulp89.agentcompose.core.AgentRequest
+import io.github.mehulp89.agentcompose.core.AgentRole
+import io.github.mehulp89.agentcompose.core.AgentToolHandler
+import io.github.mehulp89.agentcompose.core.CitationPart
+import io.github.mehulp89.agentcompose.core.ToolCallPart
+import io.github.mehulp89.agentcompose.core.ToolResultPart
+import io.github.mehulp89.agentcompose.ui.AgentChat
+import io.github.mehulp89.agentcompose.ui.rememberAgentChatState
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContent {
+            SampleTheme {
+                SampleChat()
+            }
+        }
+    }
+}
+
+@Composable
+private fun SampleChat() {
+    val engine = remember { SampleAgentEngine() }
+    val toolHandler = remember {
+        AgentToolHandler { call ->
+            delay(500)
+            ToolResultPart(
+                toolCallId = call.id,
+                content = "Created local note '${call.arguments["title"] ?: "Untitled"}'.",
+            )
+        }
+    }
+    val welcome = remember {
+        listOf(
+            AgentMessage.text(
+                role = AgentRole.ASSISTANT,
+                text = """
+                    # Welcome to AgentCompose
+
+                    Try **Show me Kotlin code** or **Save a note called Ideas**.
+                """.trimIndent(),
+            ),
+        )
+    }
+    val chatState = rememberAgentChatState(
+        engine = engine,
+        toolHandler = toolHandler,
+        initialMessages = welcome,
+    )
+    val uriHandler = LocalUriHandler.current
+
+    AgentChat(
+        state = chatState,
+        onOpenUrl = uriHandler::openUri,
+    )
+}
+
+/**
+ * A deterministic offline engine that demonstrates streaming, Markdown, citations, and tools.
+ * Replace this class with a production adapter implementing [AgentEngine].
+ */
+private class SampleAgentEngine : AgentEngine {
+    override fun stream(request: AgentRequest): Flow<AgentEvent> = flow {
+        emit(AgentEvent.Started)
+        val latest = request.messages.lastOrNull()
+
+        if (latest?.role == AgentRole.TOOL) {
+            val result = latest.parts.filterIsInstance<ToolResultPart>().firstOrNull()
+            val response = if (result?.isError == true) {
+                "Okay — I did not run that action. You remain in control."
+            } else {
+                "Done. The approved tool completed successfully: `${result?.content}`"
+            }
+            streamText(response)
+            emit(AgentEvent.Completed)
+            return@flow
+        }
+
+        val prompt = latest?.text.orEmpty()
+        when {
+            prompt.contains("save", ignoreCase = true) -> {
+                emit(
+                    AgentEvent.ToolCallRequested(
+                        ToolCallPart(
+                            id = "save-${System.currentTimeMillis()}",
+                            name = "save_note",
+                            arguments = mapOf("title" to extractTitle(prompt)),
+                            explanation = "Create a note on this device. Approval is required.",
+                        ),
+                    ),
+                )
+            }
+            prompt.contains("code", ignoreCase = true) -> {
+                streamText(
+                    """
+                    ## A small Kotlin example
+
+                    ```kotlin
+                    val greeting = "Hello, AgentCompose!"
+                    println(greeting)
+                    ```
+
+                    The UI keeps code readable even while tokens are streaming.
+                    """.trimIndent(),
+                )
+            }
+            else -> {
+                streamText(
+                    """
+                    AgentCompose is **provider-neutral**. Your adapter only needs to return a
+                    `Flow<AgentEvent>`.
+
+                    - Stream text incrementally
+                    - Request tools with user approval
+                    - Add citations and attachments
+                """.trimIndent(),
+                )
+                emit(
+                    AgentEvent.CitationAdded(
+                        CitationPart(
+                            title = "AgentCompose on GitHub",
+                            url = "https://github.com/mehulp89/agent-compose",
+                            snippet = "Documentation, examples, and contribution guide.",
+                        ),
+                    ),
+                )
+            }
+        }
+        emit(AgentEvent.Completed)
+    }
+
+    private suspend fun kotlinx.coroutines.flow.FlowCollector<AgentEvent>.streamText(text: String) {
+        for (chunk in text.chunked(10)) {
+            emit(AgentEvent.TextDelta(chunk))
+            delay(35)
+        }
+    }
+
+    private fun extractTitle(prompt: String): String = prompt
+        .substringAfter("called", missingDelimiterValue = "Ideas")
+        .trim()
+        .ifBlank { "Ideas" }
+}
+
+@Composable
+private fun SampleTheme(content: @Composable () -> Unit) {
+    MaterialTheme(
+        colorScheme = if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme(),
+        content = content,
+    )
+}

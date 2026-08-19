@@ -1,0 +1,41 @@
+name: Feature proposal
+description: Suggest an improvement or public API change
+title: "[Proposal]: "
+labels: ["proposal", "needs-triage"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What developer or user problem should this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: api
+    attributes:
+      label: Proposed experience
+      description: Show the desired calling code or UI behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: true
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Compatibility and security
+      description: Consider existing users, dependencies, permissions, privacy, and tool safety.
+    validations:
+      required: true
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Checks
+      options:
+        - label: I searched existing issues and roadmap entries.
+          required: true
+        - label: I am willing to help implement or test this proposal.
+          required: false
