@@ -5,14 +5,14 @@ plugins {
 
 android {
     namespace = "io.github.mehulp89.agentcompose.sample"
-    compileSdk = 37
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "io.github.mehulp89.agentcompose.sample"
         minSdk = 23
-        targetSdk = 37
-        versionCode = 1
-        versionName = "0.1.0"
+        targetSdk = 36
+        versionCode = 2
+        versionName = "0.2.0"
     }
 
     buildFeatures {

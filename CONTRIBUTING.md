@@ -21,7 +21,7 @@ same work and gives maintainers a chance to clarify compatibility requirements.
 1. Fork `mehulp89/agent-compose` on GitHub.
 2. Clone your fork.
 3. Open the repository root in Android Studio.
-4. Run `./gradlew test :agent-compose:lint :sample:assembleDebug`.
+4. Run `./gradlew test lint :sample:assembleDebug`.
 5. Create a focused branch such as `fix/retry-state` or `feature/copy-code`.
 
 The sample engine is offline. No provider account or secret is required.
@@ -44,7 +44,7 @@ Android Studio's default Kotlin formatter with this repository's `.editorconfig`
 Every behavior change should include the smallest useful automated test. At minimum run:
 
 ```bash
-./gradlew test :agent-compose:lint :sample:assembleDebug
+./gradlew test lint :sample:assembleDebug
 ```
 
 For UI changes, also run the sample in light mode, dark mode, and at a tablet width. Check TalkBack

@@ -34,4 +34,28 @@ class MarkdownParserTest {
         assertEquals(1, blocks.size)
         assertEquals("val value =", (blocks.single() as MarkdownBlock.Code).code)
     }
+
+    @Test
+    fun `parses github table ordered list and divider`() {
+        val blocks = parseMarkdownBlocks(
+            """
+            | Provider | Mode |
+            | --- | --- |
+            | Firebase | Cloud |
+            | ML Kit | On-device |
+
+            1. Configure
+              2. Run
+
+            ---
+            """.trimIndent(),
+        )
+
+        val table = blocks[0] as MarkdownBlock.Table
+        assertEquals(listOf("Provider", "Mode"), table.headers)
+        assertEquals(2, table.rows.size)
+        assertEquals(1, (blocks[1] as MarkdownBlock.Ordered).number)
+        assertEquals(1, (blocks[2] as MarkdownBlock.Ordered).depth)
+        assertTrue(blocks[3] is MarkdownBlock.Divider)
+    }
 }

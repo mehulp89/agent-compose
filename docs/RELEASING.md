@@ -35,7 +35,12 @@ Only maintainers with access to the Maven Central namespace and repository secre
 8. Push the tag and create a GitHub Release using the matching changelog section.
 
 Publishing starts when the GitHub Release is marked published. The release workflow signs both
-library artifacts and submits them through the Central Portal.
+JVM and Android library artifacts and submits them through the Central Portal. For `0.2.0`, confirm
+that Central contains all six coordinates: `agent-core`, `agent-compose`, `agent-firebase-ai`,
+`agent-mlkit-genai`, `agent-persistence-room`, and `agent-testing`.
+
+Central publication requires an account, verified namespace, user token, and GPG key. The workflow
+cannot bypass that one-time maintainer setup. Never place those values in committed Gradle files.
 
 ## Recovery
 

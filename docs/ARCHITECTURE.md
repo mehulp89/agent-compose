@@ -38,6 +38,13 @@ Android library built on Jetpack Compose and Material 3.
 - Lightweight streaming Markdown renderer
 - Default rendering for every core message part
 
+### Optional production modules
+
+- `agent-firebase-ai`: Firebase AI Logic request/event mapping
+- `agent-mlkit-genai`: on-device Prompt API request/event mapping
+- `agent-persistence-room`: normalized Room entities and store API
+- `agent-testing`: pure JVM scripts and recorders
+
 ### `sample`
 
 Runnable teaching application. It uses a fake offline engine so every contributor can build and
@@ -61,5 +68,5 @@ document provider mapping in the same pull request.
 ## Dependency policy
 
 The core module intentionally has only Kotlin coroutines as a runtime dependency. The Compose
-module uses AndroidX only. New dependencies need a clear size, maintenance, license, and security
-justification.
+module uses AndroidX only. Provider and persistence SDKs stay in optional artifacts. New
+dependencies need a clear size, maintenance, license, and security justification.

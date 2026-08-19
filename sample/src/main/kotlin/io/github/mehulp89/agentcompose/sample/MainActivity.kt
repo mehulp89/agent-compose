@@ -55,9 +55,10 @@ private fun SampleChat() {
             AgentMessage.text(
                 role = AgentRole.ASSISTANT,
                 text = """
-                    # Welcome to AgentCompose
+                    # AgentCompose 0.2.0
 
-                    Try **Show me Kotlin code** or **Save a note called Ideas**.
+                    The **Production Pack** is ready. Try **Show me Kotlin code** or
+                    **Save a note called Ideas**.
                 """.trimIndent(),
             ),
         )
@@ -116,11 +117,13 @@ private class SampleAgentEngine : AgentEngine {
                     ## A small Kotlin example
 
                     ```kotlin
-                    val greeting = "Hello, AgentCompose!"
-                    println(greeting)
+                    val engine = FirebaseAiAgentEngine(model)
+                    val state = rememberAgentChatState(engine)
+
+                    AgentChat(state = state)
                     ```
 
-                    The UI keeps code readable even while tokens are streaming.
+                    Tap **Copy** in the code header. Syntax color remains stable while tokens stream.
                     """.trimIndent(),
                 )
             }
@@ -130,9 +133,15 @@ private class SampleAgentEngine : AgentEngine {
                     AgentCompose is **provider-neutral**. Your adapter only needs to return a
                     `Flow<AgentEvent>`.
 
-                    - Stream text incrementally
-                    - Request tools with user approval
-                    - Add citations and attachments
+                    | Module | Purpose |
+                    | --- | --- |
+                    | Firebase AI | Cloud inference + functions |
+                    | ML Kit GenAI | Private on-device inference |
+                    | Room | Durable conversations |
+                    | Testing | Deterministic agent scripts |
+
+                    1. Pick only the modules your app needs.
+                    2. Keep tool execution behind user approval.
                 """.trimIndent(),
                 )
                 emit(

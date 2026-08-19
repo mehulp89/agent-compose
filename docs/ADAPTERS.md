@@ -3,6 +3,9 @@
 AgentCompose intentionally does not choose a model vendor. A provider adapter has one job: map the
 current conversation into a provider request and map the provider stream back to `AgentEvent`.
 
+Version 0.2.0 includes maintained adapters for Firebase AI Logic and ML Kit GenAI. Read
+[Production Pack](PRODUCTION_PACK.md) before writing a custom implementation.
+
 ## Minimum adapter
 
 ```kotlin
@@ -66,7 +69,7 @@ the adapter. If wrapping callbacks, call the provider's cancel method from `awai
 
 ## Testing
 
-Use a fake `flow` in unit tests. Verify:
+Use `agent-testing` or a small fake `flow` in unit tests. Verify:
 
 - multiple deltas join in order;
 - provider failures preserve partial text;
